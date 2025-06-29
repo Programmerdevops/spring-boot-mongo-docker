@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: springboot-deployment
-  namespace: test
+  namespace: webapps
 spec:
   replicas: 2
   selector:
@@ -37,7 +37,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: springboot-svc
-  namespace: test
+  namespace: webapps
 spec:
   type: NodePort
   selector:
@@ -52,7 +52,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: mongopvc
-  namespace: test
+  namespace: webapps
 spec:
   resources:
     requests:
@@ -64,7 +64,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mongodbc-deployment
-  namespace: test
+  namespace: webapps
 spec:
   replicas: 1
   selector:
@@ -112,7 +112,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: mongodbsvc
-  namespace: test
+  namespace: webapps
 spec:
   selector:
     app: mongo
