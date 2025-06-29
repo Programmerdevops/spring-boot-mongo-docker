@@ -45,7 +45,7 @@ spec:
   ports:
   - port: 80
     targetPort: 8080
-    nodePort: 30001
+    nodePort: 30002
     name: springboot
 ---
 apiVersion: v1
