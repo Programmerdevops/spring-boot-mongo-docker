@@ -1,0 +1,121 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: springboot-deployment
+  namespace: test
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: springboot
+  template:
+    metadata:
+      labels:
+        app: springboot
+    spec:
+      containers:
+      - name: springboot-container
+        image: dockerhandson/spring-boot-mongo:1
+        resources:
+          requests:
+            cpu: "300m"
+            memory: "450Mi"
+          limits:
+            memory: "550Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8080
+        env:
+        - name: MONGO_DB_PASSWORD
+          value: root
+        - name: MONGO_DB_USERNAME
+          value: admin
+        - name: MONGO_DB_HOSTNAME
+          value: mongodbsvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: springboot-svc
+  namespace: test
+spec:
+  type: NodePort
+  selector:
+    app: springboot
+  ports:
+  - port: 80
+    targetPort: 8080
+    nodePort: 30001
+    name: springboot
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongopvc
+  namespace: test
+spec:
+  resources:
+    requests:
+      storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodbc-deployment
+  namespace: test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      volumes:
+      - name: mongodbvolume
+        persistentVolumeClaim:
+         claimName: mongopvc
+      containers:
+      - name: mongodb
+        image: mongo
+        resources:
+          requests:
+            cpu: "300m"
+            memory: "450Mi"
+          limits:
+            memory: "550Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 27017
+        env:
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: springappsecreat
+              key: MONGODBPASSWORD
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            configMapKeyRef:
+             name: springappconfig
+             key: MONGODBUSERNAME
+        - name: MONGO_DB_HOSTNAME
+          value: mongodbsvc
+        volumeMounts:
+        - name: mongodbvolume
+          mountPath: "/data/db"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodbsvc
+  namespace: test
+spec:
+  selector:
+    app: mongo
+  ports:
+  - port: 27017
+    targetPort: 27017
