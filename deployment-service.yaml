@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: springboot-container
-        image: us-central1-docker.pkg.dev/devops-practices-2025/springbootdockerrepo/spring-boot-mongo:latest
+        image: us-central1-docker.pkg.dev/devops-practices-2025/springbootdockerrepo/spring-boot-mongo:master-3
         resources:
           requests:
             cpu: "300m"
